@@ -20,7 +20,7 @@ jobs:
           python3 python3-pip python3-setuptools \
           openjdk-17-jdk unzip zip curl \
           libtinfo6 libffi-dev libssl-dev \
-          libsqlite3-dev zlib1g-dev
+          libsqlite3-dev zlib1g-dev git
 
     - name: Install Android SDK + Build Tools
       run: |
@@ -39,8 +39,6 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install cython buildozer
-        
-        # ADĂUGĂM buildozer în PATH
         echo "$HOME/.local/bin" >> $GITHUB_PATH
 
     - name: Build APK
