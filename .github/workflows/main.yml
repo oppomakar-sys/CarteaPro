@@ -13,43 +13,37 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Install system dependencies
+    - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y \
+        sudo apt update
+        sudo apt install -y \
           python3 python3-pip python3-setuptools \
           openjdk-17-jdk unzip zip curl \
           libtinfo6 libffi-dev libssl-dev \
           libsqlite3-dev zlib1g-dev
 
-    - name: Install Android SDK + Build Tools
+    - name: Install Android SDK + Build Tools (FIX 2025)
       run: |
-        mkdir -p $HOME/android-sdk
-        cd $HOME/android-sdk
-        curl -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
-        unzip sdk.zip
-        mkdir -p cmdline-tools/latest
-        mv cmdline-tools/* cmdline-tools/latest/
-
-        yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
-          "platform-tools" \
-          "platforms;android-33" \
-          "build-tools;33.0.2"
-
-        export ANDROID_HOME=$HOME/android-sdk
-        export PATH=$ANDROID_HOME/build-tools/33.0.2:$PATH
-        export PATH=$ANDROID_HOME/platform-tools:$PATH
+        mkdir -p $HOME/android-sdk/cmdline-tools
+        cd $HOME/android-sdk/cmdline-tools
+        
+        curl -o tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+        unzip tools.zip -d temp
+        mv temp/cmdline-tools ./latest
+        
+        yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools"
+        yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk "platforms;android-33"
+        yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk "build-tools;33.0.2"
 
     - name: Install Buildozer
       run: |
         pip install --upgrade pip
-        pip install buildozer
-        pip install cython
+        pip install cython buildozer
 
     - name: Build APK
       env:
         ANDROIDSDK: $HOME/android-sdk
-        ANDROIDNDK: $HOME/.buildozer/android/platform/android-ndk-r25b
+        PATH: $HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/33.0.2:$PATH
       run: |
         buildozer android debug
 
