@@ -22,7 +22,7 @@ jobs:
           libtinfo6 libffi-dev libssl-dev \
           libsqlite3-dev zlib1g-dev
 
-    - name: Install Android SDK + Build Tools (FIX 2025)
+    - name: Install Android SDK + Build Tools
       run: |
         mkdir -p $HOME/android-sdk/cmdline-tools
         cd $HOME/android-sdk/cmdline-tools
@@ -39,11 +39,15 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install cython buildozer
+        
+        # ADĂUGĂM buildozer în PATH
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
 
     - name: Build APK
       env:
         ANDROIDSDK: $HOME/android-sdk
-        PATH: $HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/33.0.2:$PATH
+        ANDROID_HOME: $HOME/android-sdk
+        PATH: $HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/33.0.2:$HOME/.local/bin:$PATH
       run: |
         buildozer android debug
 
